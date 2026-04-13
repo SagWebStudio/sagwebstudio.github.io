@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ═══ SEO PRINCIPAL ═══ -->
+<title>Pixels-Mystère — Jeu de Nonogram Gratuit en Français | Québec & France</title>
+<meta name="description" content="Jeu de nonogram (picross) 100% gratuit en français. Puzzles thématiques québécois et français. Résous la grille, révèle l'image cachée. Un nouveau défi chaque semaine !">
+<meta name="keywords" content="nonogram français, picross québec, jeu de grille gratuit, puzzle logique français, jeu québécois gratuit, pixels mystère, jeu de logique francophone">
+<meta name="author" content="SagWeb Studio">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://sagwebstudio.github.io/pixels-mystere/">
+
+<!-- ═══ OPEN GRAPH (Facebook, LinkedIn) ═══ -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sagwebstudio.github.io/pixels-mystere/">
+<meta property="og:title" content="Pixels-Mystère — Jeu de Nonogram Gratuit en Français">
+<meta property="og:description" content="Résous des grilles logiques sur la culture québécoise et française. Gratuit, sans inscription, jouable sur mobile !">
+<meta property="og:image" content="https://sagwebstudio.github.io/pixels-mystere/og-image.png">
+<meta property="og:locale" content="fr_CA">
+<meta property="og:locale:alternate" content="fr_FR">
+<meta property="og:site_name" content="Pixels-Mystère by SagWeb Studio">
+
+<!-- ═══ TWITTER CARD ═══ -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pixels-Mystère — Jeu de Nonogram Gratuit en Français">
+<meta name="twitter:description" content="Résous des grilles logiques sur la culture québécoise et française. Gratuit, sans inscription !">
+<meta name="twitter:image" content="https://sagwebstudio.github.io/pixels-mystere/og-image.png">
+
+<!-- ═══ DONNÉES STRUCTURÉES JSON-LD ═══ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Pixels-Mystère",
+  "description": "Jeu de nonogram gratuit en français avec des puzzles thématiques québécois et français.",
+  "url": "https://sagwebstudio.github.io/pixels-mystere/",
+  "applicationCategory": "Game",
+  "operatingSystem": "Web",
+  "inLanguage": ["fr-CA", "fr-FR"],
+  "isAccessibleForFree": true,
+  "author": {
+    "@type": "Organization",
+    "name": "SagWeb Studio",
+    "email": "sagwebstudio@gmail.com"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CAD"
+  }
+}
+</script>
+
+<meta name="google-adsense-account" content="ca-pub-5962758872361480">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5962758872361480" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════════════════
+     GOOGLE ADSENSE
+     Étapes après approbation de ton compte :
+       1. Remplace ca-pub-XXXXXXXXXXXXXXXX par ton ID éditeur
+       2. Remplace les XXXXXXXXXX par tes IDs de blocs
+       3. Passe ADSENSE_ACTIVE à true
+     ═══════════════════════════════════════════════════ -->
+<script>
+  const ADSENSE_ACTIVE = true; // ✅ Compte AdSense actif
+  const ADSENSE_CLIENT = 'ca-pub-5962758872361480';
+  const ADSENSE_SLOTS  = {
+    haut_de_page : 'XXXXXXXXXX',
+    bas_de_page  : 'XXXXXXXXXX',
+    entre_puzzles: 'XXXXXXXXXX',
+  };
+  if (ADSENSE_ACTIVE) {
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
+    s.crossOrigin = 'anonymous';
+    document.head.appendChild(s);
+  }
+</script>
+
+<style>
+  :root {
+    --bg: #0e0e14;
+    --surface: #16161f;
+    --surface2: #1e1e2e;
+    --border: #2a2a3d;
+    --accent-qc: #e8372a;
+    --accent-fr: #3a6fd8;
+    --accent-active: #e8372a;
+    --text: #f0f0f8;
+    --text-dim: #888;
+    --cell-empty: #1e1e2e;
+    --cell-filled: #f0f0f8;
+    --cell-marked: #2a2a3d;
+    --cell-error: #e8372a44;
+    --green: #4caf7d;
+    --pixel-size: 38px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* ─── BRUIT DE FOND ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo span { color: var(--accent-active); }
+
+  .region-toggle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .region-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .region-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .region-btn.active-qc {
+    background: #e8372a22;
+    border-color: var(--accent-qc);
+    color: var(--accent-qc);
+    font-weight: 700;
+  }
+
+  .region-btn.active-fr {
+    background: #3a6fd822;
+    border-color: var(--accent-fr);
+    color: var(--accent-fr);
+    font-weight: 700;
+  }
+
+  .region-btn.coming-soon {
+    opacity: 0.4;
+    cursor: not-allowed;
+    font-size: 0.65rem;
+  }
+
+  /* ─── ÉCRAN DE SÉLECTION ─── */
+  #screen-select {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; pointer-events: none; } }
+
+  .select-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  .select-title span { color: var(--accent-qc); }
+
+  .select-subtitle {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    text-align: center;
+    max-width: 340px;
+    line-height: 1.6;
+  }
+
+  .select-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: min(500px, 90vw);
+  }
+
+  .select-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .select-card:hover { transform: translateY(-3px); }
+  .select-card.qc:hover { border-color: var(--accent-qc); background: #e8372a11; }
+  .select-card.fr:hover { border-color: var(--accent-fr); background: #3a6fd811; }
+
+  .select-card .flag { font-size: 2.5rem; }
+  .select-card .region-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .select-card .region-desc {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .select-card.soon {
+    opacity: 0.4;
+    cursor: not-allowed;
+    position: relative;
+  }
+
+  .soon-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--border);
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    padding: 3px 7px;
+    border-radius: 99px;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ─── MAIN LAYOUT ─── */
+  main {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+    gap: 20px;
+  }
+
+  /* ─── PUZZLE HEADER ─── */
+  .puzzle-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: min(560px, 100%);
+    gap: 12px;
+  }
+
+  .puzzle-info { display: flex; flex-direction: column; gap: 4px; }
+
+  .puzzle-num {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .puzzle-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .puzzle-stats {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .stat-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ─── GRILLE DE JEU ─── */
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .nonogram-wrap {
+    display: grid;
+    gap: 0;
+  }
+
+  /* cellule de la grille */
+  .cell {
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    background: var(--cell-empty);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: transparent;
+    position: relative;
+  }
+
+  .cell:hover { border-color: var(--text-dim); z-index: 2; }
+
+  .cell.filled {
+    background: var(--cell-filled);
+    color: var(--cell-filled);
+  }
+
+  .cell.marked {
+    background: var(--cell-marked);
+    color: var(--text-dim);
+  }
+
+  .cell.marked::after {
+    content: '✕';
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .cell.correct { background: var(--cell-filled); }
+
+  /* indices */
+  .clue {
+    width: var(--pixel-size);
+    height: var(--pixel-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .clue span {
+    display: block;
+    line-height: 1.2;
+    font-size: 0.68rem;
+  }
+
+  .clue.row-clue { justify-content: flex-end; padding-right: 6px; gap: 4px; flex-direction: row; }
+
+  .corner { width: var(--pixel-size); height: var(--pixel-size); }
+
+  /* ─── BOUTONS ─── */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .btn:hover { border-color: var(--text-dim); background: var(--surface); }
+
+  .btn.primary {
+    background: var(--accent-active);
+    border-color: var(--accent-active);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .btn.primary:hover { filter: brightness(1.15); }
+
+  /* ─── MODE TOGGLE ─── */
+  .mode-toggle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px;
+  }
+
+  .mode-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active {
+    background: var(--accent-active);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  /* ─── VICTORY ─── */
+  #victory-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: #0e0e14cc;
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  #victory-overlay.show { display: flex; }
+
+  .victory-card {
+    background: var(--surface);
+    border: 2px solid var(--accent-active);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 380px;
+    width: 90vw;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .victory-emoji { font-size: 3rem; }
+
+  .victory-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    color: var(--accent-active);
+  }
+
+  .victory-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; }
+
+  .share-text {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+    white-space: pre;
+    color: var(--text);
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  /* ─── PROGRESSION ─── */
+  .progress-bar-wrap {
+    width: min(560px, 100%);
+    background: var(--surface2);
+    border-radius: 99px;
+    height: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--accent-active);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  /* ─── PAGINATION PUZZLES ─── */
+  .puzzle-nav {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: min(560px, 100%);
+  }
+
+  .puzzle-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+  }
+
+  .puzzle-dot:hover { border-color: var(--text-dim); }
+  .puzzle-dot.active { border-color: var(--accent-active); color: var(--accent-active); }
+  .puzzle-dot.solved { background: var(--accent-active); border-color: var(--accent-active); color: #fff; }
+
+  /* ─── ADSENSE BLOCS ─── */
+  .ad-wrap {
+    width: min(728px, 100%);
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  .ad-placeholder {
+    width: 100%;
+    height: 90px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .ad-wrap ins.adsbygoogle { display: block; width: 100%; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    position: relative;
+    z-index: 10;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .footer-brand span {
+    color: var(--accent-active);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .footer-link {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-link:hover { color: var(--text); }
+
+  .footer-copy {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    width: 100%;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin-top: 4px;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 480px) {
+    :root { --pixel-size: 30px; }
+    .select-title { font-size: 1.8rem; }
+    .victory-card { padding: 24px; }
+  }
+
+  @media (max-width: 360px) {
+    :root { --pixel-size: 26px; }
+  }
+
+  /* ─── ANIMATIONS CELLULES ─── */
+  @keyframes popIn {
+    0% { transform: scale(0.8); }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  .cell.filled { animation: popIn 0.15s ease; }
+
+  @keyframes winWave {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); background: var(--green); }
+  }
+
+  .cell.win-anim { animation: winWave 0.3s ease; }
+
+  /* ─── COUNTER résolu par région ─── */
+  .region-score {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .region-score strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     ÉCRAN DE SÉLECTION DE RÉGION
+══════════════════════════════════════════ -->
+<div id="screen-select">
+  <div>
+    <div class="select-title">PIXELS<span>-</span>MYSTÈRE</div>
+    <p class="select-subtitle" style="margin-top:10px">Résous la grille, révèle l'image.<br>Choisis ta région pour commencer.</p>
+  </div>
+
+  <div class="select-grid">
+    <div class="select-card qc" onclick="selectRegion('qc')">
+      <div class="flag">🍁</div>
+      <div class="region-name">Québec</div>
+      <div class="region-desc">Faune, hockey,<br>culture québécoise</div>
+    </div>
+    <div class="select-card fr" onclick="selectRegion('fr')">
+      <div class="flag">🗼</div>
+      <div class="region-name">France</div>
+      <div class="region-desc">Monuments, cuisine,<br>culture française</div>
+    </div>
+    <div class="select-card soon" title="Bientôt disponible">
+      <span class="soon-badge">Bientôt</span>
+      <div class="flag">🇧🇪</div>
+      <div class="region-name">Belgique</div>
+      <div class="region-desc">En préparation…</div>
+    </div>
+    <div class="select-card soon" title="Bientôt disponible">
+      <span class="soon-badge">Bientôt</span>
+      <div class="flag">🇨🇭</div>
+      <div class="region-name">Suisse</div>
+      <div class="region-desc">En préparation…</div>
+    </div>
+  </div>
+
+  <p style="font-size:0.65rem;color:var(--text-dim)">Tu pourras changer de région à tout moment.</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header>
+  <div class="logo">PIXELS<span>-</span>MYSTÈRE</div>
+  <div class="region-toggle">
+    <button class="region-btn" id="btn-qc" onclick="switchRegion('qc')">🍁 Québec</button>
+    <button class="region-btn" id="btn-fr" onclick="switchRegion('fr')">🗼 France</button>
+    <button class="region-btn coming-soon" title="Bientôt">🇧🇪</button>
+    <button class="region-btn coming-soon" title="Bientôt">🇨🇭</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════ -->
+<main>
+
+  <!-- AdSense haut de page -->
+  <div class="ad-wrap" id="ad-top"></div>
+
+  <!-- Info puzzle -->
+  <div class="puzzle-header">
+    <div class="puzzle-info">
+      <div class="puzzle-num" id="puzzle-num">Puzzle #1</div>
+      <div class="puzzle-title" id="puzzle-title">Chargement…</div>
+    </div>
+    <div class="puzzle-stats">
+      <div class="stat">
+        <div class="stat-val" id="stat-timer">0:00</div>
+        <div class="stat-label">Temps</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="stat-errors">0</div>
+        <div class="stat-label">Erreurs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre de progression -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+
+  <!-- Sélection du mode (remplir / marquer) -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="mode-fill" onclick="setMode('fill')">⬛ Remplir</button>
+    <button class="mode-btn" id="mode-mark" onclick="setMode('mark')">✕ Marquer</button>
+  </div>
+
+  <!-- Grille nonogram -->
+  <div class="game-container">
+    <div class="nonogram-wrap" id="nonogram-wrap"></div>
+  </div>
+
+  <!-- Boutons -->
+  <div class="btn-row">
+    <button class="btn" onclick="resetPuzzle()">↺ Recommencer</button>
+    <button class="btn" onclick="showHint()">💡 Indice</button>
+    <button class="btn primary" onclick="nextPuzzle()">Suivant →</button>
+  </div>
+
+  <!-- Navigation puzzles -->
+  <div class="puzzle-nav" id="puzzle-nav"></div>
+
+  <!-- Score régions -->
+  <div class="region-score" id="region-score"></div>
+
+  <!-- AdSense bas de page -->
+  <div class="ad-wrap" id="ad-bottom" style="margin-top:16px"></div>
+
+</main>
+
+<!-- ══════════════════════════════════════════
+     OVERLAY VICTOIRE
+══════════════════════════════════════════ -->
+<div id="victory-overlay">
+  <div class="victory-card">
+    <div class="victory-emoji" id="v-emoji">🎉</div>
+    <div class="victory-title" id="v-title">Résolu !</div>
+    <div class="victory-desc" id="v-desc"></div>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-val" id="v-time">-</div>
+        <div class="stat-label">Temps</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="v-errors">-</div>
+        <div class="stat-label">Erreurs</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="v-score">-</div>
+        <div class="stat-label">Score</div>
+      </div>
+    </div>
+    <div class="share-text" id="share-text"></div>
+    <div class="btn-row">
+      <button class="btn" onclick="copyShare()">📋 Copier</button>
+      <button class="btn primary" onclick="closeVictory()">Suivant →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+
+// ─── CONFIGURATION DES RÉGIONS ────────────────────────────────────────────
+const REGIONS = {
+  qc: {
+    nom: "Québec",
+    drapeau: "🍁",
+    actif: true,
+    ui: {
+      bravo: "Câline, t'es bon !",
+      puzzle_label: "Puzzle québécois",
+      partage_suffix: "pixelsmystere.github.io",
+      emoji_victoire: "🍁"
+    },
+    puzzles: [
+      {
+        id: "qc-01",
+        titre: "L'Orignal",
+        emoji: "🦌",
+        description: "L'animal emblématique des forêts québécoises.",
+        taille: 7,
+        solution: [
+          [0,0,1,0,1,0,0],
+          [0,0,1,1,1,0,0],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,1,1,1,1,1,0],
+          [0,0,1,0,1,0,0],
+          [0,0,1,0,1,0,0],
+        ]
+      },
+      {
+        id: "qc-02",
+        titre: "La Fleur de Lys",
+        emoji: "⚜️",
+        description: "Symbole du drapeau québécois depuis 1948.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,0,1,0,1,1],
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+        ]
+      },
+      {
+        id: "qc-03",
+        titre: "La Cabane à Sucre",
+        emoji: "🍁",
+        description: "Lieu de rassemblement au temps des sucres.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,0,1,0,1,1],
+          [0,1,1,1,1,1,0],
+          [0,1,0,0,0,1,0],
+          [0,1,0,1,0,1,0],
+          [0,1,1,1,1,1,0],
+        ]
+      },
+      {
+        id: "qc-04",
+        titre: "La Rondelle",
+        emoji: "🏒",
+        description: "Le sport national des Québécois !",
+        taille: 7,
+        solution: [
+          [0,0,0,0,0,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [1,1,1,1,1,1,1],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,0,0,0,0,0,0],
+        ]
+      },
+      {
+        id: "qc-05",
+        titre: "Le Castor",
+        emoji: "🦫",
+        description: "Animal symbole du Canada, cher au Québec.",
+        taille: 7,
+        solution: [
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [1,1,0,1,0,1,1],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,0,1,0,1,0,0],
+          [0,1,1,1,1,1,0],
+        ]
+      },
+      {
+        id: "qc-06",
+        titre: "Le Pont de Québec",
+        emoji: "🌉",
+        description: "Le plus long pont cantilever au monde.",
+        taille: 7,
+        solution: [
+          [0,0,0,0,0,0,0],
+          [0,1,0,0,0,1,0],
+          [1,1,1,0,1,1,1],
+          [1,0,1,1,1,0,1],
+          [1,0,0,1,0,0,1],
+          [1,1,1,1,1,1,1],
+          [0,0,0,0,0,0,0],
+        ]
+      },
+      {
+        id: "qc-07",
+        titre: "La Feuille d'Érable",
+        emoji: "🍂",
+        description: "Le symbole le plus reconnu du Canada.",
+        taille: 7,
+        solution: [
+          [0,0,1,0,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,0,1,1,1,0,0],
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+        ]
+      },
+      {
+        id: "qc-08",
+        titre: "Le Harfang des Neiges",
+        emoji: "🦉",
+        description: "L'oiseau national du Québec, majestueux hibou blanc.",
+        taille: 7,
+        solution: [
+          [0,1,1,0,1,1,0],
+          [1,1,1,1,1,1,1],
+          [1,0,1,1,1,0,1],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,0,1,1,1,0,0],
+          [0,1,0,0,0,1,0],
+        ]
+      },
+      {
+        id: "qc-09",
+        titre: "Le Canot",
+        emoji: "🛶",
+        description: "Transport traditionnel des coureurs des bois.",
+        taille: 7,
+        solution: [
+          [0,0,0,0,0,0,0],
+          [0,0,1,0,1,0,0],
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [0,0,0,0,0,0,0],
+          [0,0,0,0,0,0,0],
+        ]
+      },
+      {
+        id: "qc-10",
+        titre: "L'Igloo",
+        emoji: "🏔️",
+        description: "Abri traditionnel des peuples du Nord.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [1,1,1,0,1,1,1],
+          [1,1,0,0,0,1,1],
+          [1,1,0,0,0,1,1],
+          [1,1,1,1,1,1,1],
+        ]
+      },
+      {
+        id: "qc-11",
+        titre: "Le Loup",
+        emoji: "🐺",
+        description: "Prédateur emblématique des forêts boréales.",
+        taille: 7,
+        solution: [
+          [0,1,0,0,0,1,0],
+          [1,1,1,0,1,1,1],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,0,1,1,1,0,0],
+          [0,0,1,0,1,0,0],
+          [0,0,1,0,1,0,0],
+        ]
+      },
+      {
+        id: "qc-12",
+        titre: "La Montagne",
+        emoji: "⛰️",
+        description: "Les Laurentides, terrain de jeu des Québécois.",
+        taille: 7,
+        solution: [
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [0,1,1,0,1,1,0],
+          [1,1,1,0,1,1,1],
+          [1,1,1,1,1,1,1],
+        ]
+      },
+      {
+        id: "qc-13",
+        titre: "Le Sirop d'Érable",
+        emoji: "🍯",
+        description: "Or liquide du Québec, produit dans toutes les cabanes.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,0,0,1,0,0,0],
+          [0,1,1,1,1,1,0],
+          [0,1,1,1,1,1,0],
+          [0,1,1,1,1,1,0],
+          [0,1,1,1,1,1,0],
+          [0,0,1,1,1,0,0],
+        ]
+      },
+      {
+        id: "qc-14",
+        titre: "L'Ours Noir",
+        emoji: "🐻",
+        description: "L'ours noir, commun dans les forêts québécoises.",
+        taille: 7,
+        solution: [
+          [1,1,0,0,0,1,1],
+          [1,1,1,1,1,1,1],
+          [1,1,0,1,0,1,1],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,1,1,1,1,1,0],
+          [0,0,1,0,1,0,0],
+        ]
+      },
+      {
+        id: "qc-15",
+        titre: "Le Soleil",
+        emoji: "☀️",
+        description: "Le soleil tant attendu après le long hiver québécois !",
+        taille: 7,
+        solution: [
+          [0,1,0,1,0,1,0],
+          [0,0,1,1,1,0,0],
+          [1,1,1,1,1,1,1],
+          [1,1,1,1,1,1,1],
+          [1,1,1,1,1,1,1],
+          [0,0,1,1,1,0,0],
+          [0,1,0,1,0,1,0],
+        ]
+      },
+    ]
+  },
+
+  fr: {
+    nom: "France",
+    drapeau: "🗼",
+    actif: true,
+    ui: {
+      bravo: "Félicitations !",
+      puzzle_label: "Puzzle français",
+      partage_suffix: "pixelsmystere.github.io",
+      emoji_victoire: "🗼"
+    },
+    puzzles: [
+      {
+        id: "fr-01",
+        titre: "La Tour Eiffel",
+        emoji: "🗼",
+        description: "Construite en 1889, icône de Paris et de la France.",
+        taille: 7,
+        solution: [
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+          [0,0,1,1,1,0,0],
+          [0,1,0,1,0,1,0],
+          [0,1,0,1,0,1,0],
+          [1,1,1,1,1,1,1],
+          [0,0,0,1,0,0,0],
+        ]
+      },
+      {
+        id: "fr-02",
+        titre: "La Baguette",
+        emoji: "🥖",
+        description: "Le pain français par excellence !",
+        taille: 7,
+        solution: [
+          [0,0,0,0,0,0,1],
+          [0,0,0,0,0,1,1],
+          [0,0,0,0,1,1,0],
+          [0,0,0,1,1,0,0],
+          [0,0,1,1,0,0,0],
+          [0,1,1,0,0,0,0],
+          [1,1,0,0,0,0,0],
+        ]
+      },
+      {
+        id: "fr-03",
+        titre: "Le Coq Gaulois",
+        emoji: "🐓",
+        description: "Symbole de la France depuis des siècles.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,1,1,0,1,1,0],
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [0,0,1,1,1,0,0],
+          [0,0,1,0,1,0,0],
+        ]
+      },
+      {
+        id: "fr-04",
+        titre: "L'Arc de Triomphe",
+        emoji: "🏛️",
+        description: "Au centre de l'Étoile, à Paris.",
+        taille: 7,
+        solution: [
+          [0,1,1,1,1,1,0],
+          [1,1,0,0,0,1,1],
+          [1,1,0,0,0,1,1],
+          [1,0,0,0,0,0,1],
+          [1,0,0,0,0,0,1],
+          [1,1,0,0,0,1,1],
+          [1,1,1,1,1,1,1],
+        ]
+      },
+      {
+        id: "fr-05",
+        titre: "Le Croissant",
+        emoji: "🥐",
+        description: "Le petit-déjeuner français iconique.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,1,1,0,1,1,0],
+          [1,1,0,0,0,1,1],
+          [1,0,0,0,0,0,1],
+          [1,1,0,0,0,0,0],
+          [0,1,1,0,0,0,0],
+          [0,0,1,1,0,0,0],
+        ]
+      },
+      {
+        id: "fr-06",
+        titre: "La Fleur de Lys",
+        emoji: "⚜️",
+        description: "Emblème royal de la monarchie française.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,0,1,0,1,1],
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+        ]
+      },
+      {
+        id: "fr-07",
+        titre: "Le Béret",
+        emoji: "🎭",
+        description: "Le béret basque, icône de la culture française.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [1,1,1,1,1,1,1],
+          [0,0,0,1,0,0,0],
+          [0,0,0,1,0,0,0],
+          [0,0,0,0,0,0,0],
+        ]
+      },
+      {
+        id: "fr-08",
+        titre: "Le Camembert",
+        emoji: "🧀",
+        description: "Fromage normand, fierté de la gastronomie française.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,0,1,0,1,1],
+          [1,1,1,1,1,1,1],
+          [1,1,0,0,0,1,1],
+          [0,1,1,1,1,1,0],
+          [0,0,1,1,1,0,0],
+        ]
+      },
+      {
+        id: "fr-09",
+        titre: "La Bouteille de Vin",
+        emoji: "🍷",
+        description: "La France, premier producteur de grands vins.",
+        taille: 7,
+        solution: [
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [0,1,1,1,1,1,0],
+          [0,1,1,1,1,1,0],
+          [0,0,1,1,1,0,0],
+        ]
+      },
+      {
+        id: "fr-10",
+        titre: "Le Papillon",
+        emoji: "🦋",
+        description: "Symbole de la légèreté et de l'art de vivre à la française.",
+        taille: 7,
+        solution: [
+          [1,1,0,0,0,1,1],
+          [1,1,1,0,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,0,0,1,0,0,0],
+          [0,1,1,1,1,1,0],
+          [1,1,1,0,1,1,1],
+          [1,1,0,0,0,1,1],
+        ]
+      },
+      {
+        id: "fr-11",
+        titre: "Le Château",
+        emoji: "🏰",
+        description: "Les châteaux de la Loire, joyaux du patrimoine.",
+        taille: 7,
+        solution: [
+          [1,0,1,0,1,0,1],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,1,0,1,0,1,0],
+          [0,1,1,1,1,1,0],
+          [0,1,0,0,0,1,0],
+          [0,1,1,1,1,1,0],
+        ]
+      },
+      {
+        id: "fr-12",
+        titre: "L'Étoile",
+        emoji: "⭐",
+        description: "L'étoile — symbole de l'excellence à la française.",
+        taille: 7,
+        solution: [
+          [0,0,0,1,0,0,0],
+          [0,1,1,1,1,1,0],
+          [0,0,1,1,1,0,0],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,1,0,1,0,1,0],
+          [1,0,0,1,0,0,1],
+        ]
+      },
+      {
+        id: "fr-13",
+        titre: "Le Moulin",
+        emoji: "🌾",
+        description: "Les moulins à vent, emblèmes de la campagne française.",
+        taille: 7,
+        solution: [
+          [0,0,0,1,0,0,0],
+          [0,1,0,1,0,1,0],
+          [0,0,1,1,1,0,0],
+          [1,1,1,1,1,1,1],
+          [0,0,1,1,1,0,0],
+          [0,0,0,1,0,0,0],
+          [0,0,1,1,1,0,0],
+        ]
+      },
+      {
+        id: "fr-14",
+        titre: "Le Macaron",
+        emoji: "🍬",
+        description: "La pâtisserie française conquérante du monde entier.",
+        taille: 7,
+        solution: [
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+          [0,1,1,1,1,1,0],
+          [1,1,1,1,1,1,1],
+          [0,1,1,1,1,1,0],
+        ]
+      },
+      {
+        id: "fr-15",
+        titre: "Le Phare",
+        emoji: "🏠",
+        description: "Les phares bretons, gardiens des côtes françaises.",
+        taille: 7,
+        solution: [
+          [0,0,1,1,1,0,0],
+          [0,0,1,1,1,0,0],
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+          [0,0,1,1,1,0,0],
+          [0,0,1,1,1,0,0],
+          [0,1,1,1,1,1,0],
+        ]
+      },
+    ]
+  },
+
+  be: { nom: "Belgique", drapeau: "🇧🇪", actif: false, puzzles: [], ui: {} },
+  ch: { nom: "Suisse",   drapeau: "🇨🇭", actif: false, puzzles: [], ui: {} },
+};
+
+// ─── ÉTAT DU JEU ─────────────────────────────────────────────────────────
+let state = {
+  region: 'qc',
+  puzzleIndex: 0,
+  grille: [],
+  timerInterval: null,
+  secondes: 0,
+  erreurs: 0,
+  mode: 'fill',     // 'fill' ou 'mark'
+  isDragging: false,
+  dragValue: null,
+  solvedPuzzles: JSON.parse(localStorage.getItem('pm_solved') || '{}'),
+  scores: JSON.parse(localStorage.getItem('pm_scores') || '{}'),
+};
+
+// ─── SÉLECTION DE RÉGION (premier écran) ─────────────────────────────────
+function selectRegion(regionId) {
+  state.region = regionId;
+  localStorage.setItem('pm_region', regionId);
+  const el = document.getElementById('screen-select');
+  el.style.animation = 'fadeOut 0.35s ease forwards';
+  setTimeout(() => {
+    el.style.display = 'none';
+    initGame();
+  }, 350);
+}
+
+function switchRegion(regionId) {
+  if (!REGIONS[regionId].actif) return;
+  state.region = regionId;
+  state.puzzleIndex = 0;
+  localStorage.setItem('pm_region', regionId);
+  updateRegionButtons();
+  loadPuzzle();
+}
+
+function updateRegionButtons() {
+  const r = state.region;
+  document.getElementById('btn-qc').className = 'region-btn' + (r === 'qc' ? ' active-qc' : '');
+  document.getElementById('btn-fr').className = 'region-btn' + (r === 'fr' ? ' active-fr' : '');
+  // couleur accent dynamique
+  document.documentElement.style.setProperty('--accent-active',
+    r === 'qc' ? 'var(--accent-qc)' : 'var(--accent-fr)');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+function initGame() {
+  renderAds();
+  const saved = localStorage.getItem('pm_region');
+  if (saved && REGIONS[saved]?.actif) state.region = saved;
+  updateRegionButtons();
+  loadPuzzle();
+}
+
+// ─── CHARGEMENT D'UN PUZZLE ──────────────────────────────────────────────
+function loadPuzzle() {
+  clearInterval(state.timerInterval);
+  const puzzles = REGIONS[state.region].puzzles;
+  const puzzle  = puzzles[state.puzzleIndex];
+  const n       = puzzle.taille;
+
+  state.grille  = Array.from({length: n}, () => Array(n).fill(0)); // 0=vide,1=rempli,2=marqué
+  state.secondes = 0;
+  state.erreurs  = 0;
+  state.mode     = 'fill';
+
+  // UI
+  document.getElementById('puzzle-num').textContent =
+    `${REGIONS[state.region].drapeau} ${REGIONS[state.region].ui.puzzle_label} #${state.puzzleIndex + 1}`;
+  document.getElementById('puzzle-title').textContent = `${puzzle.emoji} ${puzzle.titre}`;
+  document.getElementById('stat-errors').textContent = '0';
+  document.getElementById('stat-timer').textContent  = '0:00';
+  setMode('fill');
+  updateProgress(puzzle.solution, n);
+  renderPuzzleNav(puzzles);
+  updateRegionScore();
+  buildGrid(puzzle.solution, n);
+
+  // Timer
+  state.timerInterval = setInterval(() => {
+    state.secondes++;
+    const m = Math.floor(state.secondes / 60);
+    const s = state.secondes % 60;
+    document.getElementById('stat-timer').textContent =
+      `${m}:${s.toString().padStart(2, '0')}`;
+  }, 1000);
+}
+
+// ─── CONSTRUCTION DE LA GRILLE ────────────────────────────────────────────
+function buildGrid(solution, n) {
+  const wrap = document.getElementById('nonogram-wrap');
+  wrap.innerHTML = '';
+
+  const colClues = computeColClues(solution, n);
+  const rowClues = computeRowClues(solution, n);
+  const maxColH  = Math.max(...colClues.map(c => c.length));
+  const maxRowW  = Math.max(...rowClues.map(r => r.length));
+
+  // CSS grid : (maxRowW clues + n cols) × (maxColH clues + n rows)
+  const totalCols = maxRowW + n;
+  const totalRows = maxColH + n;
+  wrap.style.gridTemplateColumns = `repeat(${totalCols}, var(--pixel-size))`;
+  wrap.style.gridTemplateRows    = `repeat(${totalRows}, var(--pixel-size))`;
+
+  // Coin vide
+  for (let r = 0; r < maxColH; r++) {
+    for (let c = 0; c < maxRowW; c++) {
+      const d = document.createElement('div');
+      d.className = 'corner';
+      wrap.appendChild(d);
+    }
+    // Indices colonne
+    for (let c = 0; c < n; c++) {
+      const clue = colClues[c];
+      const val  = clue[r - (maxColH - clue.length)];
+      const d    = document.createElement('div');
+      d.className = 'clue';
+      if (val !== undefined) {
+        const sp = document.createElement('span');
+        sp.textContent = val;
+        d.appendChild(sp);
+      }
+      wrap.appendChild(d);
+    }
+  }
+
+  // Lignes de jeu
+  for (let r = 0; r < n; r++) {
+    // Indices de ligne
+    const rClue = rowClues[r];
+    for (let i = 0; i < maxRowW; i++) {
+      const val = rClue[i - (maxRowW - rClue.length)];
+      const d   = document.createElement('div');
+      d.className = 'clue row-clue';
+      if (val !== undefined) {
+        const sp = document.createElement('span');
+        sp.textContent = val;
+        d.appendChild(sp);
+      }
+      wrap.appendChild(d);
+    }
+
+    // Cellules
+    for (let c = 0; c < n; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+
+      cell.addEventListener('mousedown',  (e) => onCellDown(e, r, c, solution));
+      cell.addEventListener('mouseenter', (e) => onCellEnter(e, r, c, solution));
+      cell.addEventListener('contextmenu', (e) => { e.preventDefault(); markCell(r, c); });
+
+      // Touch
+      cell.addEventListener('touchstart', (e) => { e.preventDefault(); onCellDown(e, r, c, solution); }, { passive: false });
+      cell.addEventListener('touchmove',  (e) => {
+        e.preventDefault();
+        const t = e.touches[0];
+        const el = document.elementFromPoint(t.clientX, t.clientY);
+        if (el?.classList.contains('cell')) {
+          const tr = parseInt(el.dataset.r), tc = parseInt(el.dataset.c);
+          onCellEnter(e, tr, tc, solution);
+        }
+      }, { passive: false });
+
+      wrap.appendChild(cell);
+    }
+  }
+
+  document.addEventListener('mouseup', () => { state.isDragging = false; state.dragValue = null; });
+}
+
+// ─── INDICES ──────────────────────────────────────────────────────────────
+function computeColClues(sol, n) {
+  return Array.from({length: n}, (_, c) => {
+    const clues = []; let count = 0;
+    for (let r = 0; r < n; r++) {
+      if (sol[r][c]) count++;
+      else if (count) { clues.push(count); count = 0; }
+    }
+    if (count) clues.push(count);
+    return clues.length ? clues : [0];
+  });
+}
+
+function computeRowClues(sol, n) {
+  return sol.map(row => {
+    const clues = []; let count = 0;
+    for (const v of row) {
+      if (v) count++;
+      else if (count) { clues.push(count); count = 0; }
+    }
+    if (count) clues.push(count);
+    return clues.length ? clues : [0];
+  });
+}
+
+// ─── INTERACTIONS CELLULES ────────────────────────────────────────────────
+function onCellDown(e, r, c, solution) {
+  state.isDragging = true;
+  const current = state.grille[r][c];
+
+  if (state.mode === 'mark') {
+    state.dragValue = current === 2 ? 0 : 2;
+  } else {
+    state.dragValue = current === 1 ? 0 : 1;
+  }
+
+  applyCell(r, c, solution);
+}
+
+function onCellEnter(e, r, c, solution) {
+  if (!state.isDragging) return;
+  applyCell(r, c, solution);
+}
+
+function applyCell(r, c, solution) {
+  if (state.grille[r][c] === state.dragValue) return;
+  state.grille[r][c] = state.dragValue;
+
+  // Erreur si on remplit une cellule qui devrait être vide
+  if (state.dragValue === 1 && !solution[r][c]) {
+    state.erreurs++;
+    document.getElementById('stat-errors').textContent = state.erreurs;
+    state.grille[r][c] = 0; // annuler
+  }
+
+  renderCell(r, c, solution);
+  updateProgress(solution, solution.length);
+  checkVictory(solution);
+}
+
+function markCell(r, c) {
+  state.grille[r][c] = state.grille[r][c] === 2 ? 0 : 2;
+  renderCell(r, c, null);
+}
+
+function renderCell(r, c, solution) {
+  const wrap  = document.getElementById('nonogram-wrap');
+  const n     = REGIONS[state.region].puzzles[state.puzzleIndex].taille;
+  const cells = wrap.querySelectorAll('.cell');
+  const idx   = r * n + c;
+  if (!cells[idx]) return;
+  const v = state.grille[r][c];
+  cells[idx].className = 'cell' + (v === 1 ? ' filled' : v === 2 ? ' marked' : '');
+}
+
+// ─── PROGRESSION ─────────────────────────────────────────────────────────
+function updateProgress(solution, n) {
+  let total = 0, done = 0;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    if (solution[r][c]) { total++; if (state.grille[r][c] === 1) done++; }
+  }
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ─── VICTOIRE ─────────────────────────────────────────────────────────────
+function checkVictory(solution) {
+  const n = solution.length;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    if (solution[r][c] && state.grille[r][c] !== 1) return;
+    if (!solution[r][c] && state.grille[r][c] === 1) return;
+  }
+  clearInterval(state.timerInterval);
+
+  // Animation cellules
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach((cell, i) => setTimeout(() => cell.classList.add('win-anim'), i * 15));
+
+  const puzzle = REGIONS[state.region].puzzles[state.puzzleIndex];
+  const score  = computeScore();
+
+  // Sauvegarder
+  state.solvedPuzzles[puzzle.id] = true;
+  state.scores[puzzle.id] = Math.max(state.scores[puzzle.id] || 0, score);
+  localStorage.setItem('pm_solved', JSON.stringify(state.solvedPuzzles));
+  localStorage.setItem('pm_scores', JSON.stringify(state.scores));
+  maybeShowInterstitialAd();
+
+  setTimeout(() => showVictory(puzzle, score), 600);
+  renderPuzzleNav(REGIONS[state.region].puzzles);
+  updateRegionScore();
+}
+
+function computeScore() {
+  const base    = 1000;
+  const penalty = state.erreurs * 50;
+  const timePen = Math.floor(state.secondes / 10) * 5;
+  return Math.max(100, base - penalty - timePen);
+}
+
+function showVictory(puzzle, score) {
+  const ui   = REGIONS[state.region].ui;
+  const m    = Math.floor(state.secondes / 60);
+  const s    = state.secondes % 60;
+  const time = `${m}:${s.toString().padStart(2, '0')}`;
+
+  document.getElementById('v-emoji').textContent   = puzzle.emoji;
+  document.getElementById('v-title').textContent   = ui.bravo;
+  document.getElementById('v-desc').textContent    = `${puzzle.titre} — ${puzzle.description}`;
+  document.getElementById('v-time').textContent    = time;
+  document.getElementById('v-errors').textContent  = state.erreurs;
+  document.getElementById('v-score').textContent   = score;
+
+  // Partage façon Wordle
+  const n   = puzzle.solution.length;
+  let grid  = '';
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) grid += puzzle.solution[r][c] ? '⬛' : '⬜';
+    if (r < n - 1) grid += '\n';
+  }
+  const shareMsg = `${REGIONS[state.region].drapeau} Pixels-Mystère — ${puzzle.titre} #${state.puzzleIndex + 1}\n${time} | ${state.erreurs} erreur(s) | ${score} pts\n\n${grid}\n\n${ui.partage_suffix}`;
+  document.getElementById('share-text').textContent = shareMsg;
+  state._shareMsg = shareMsg;
+
+  document.getElementById('victory-overlay').classList.add('show');
+}
+
+function closeVictory() {
+  document.getElementById('victory-overlay').classList.remove('show');
+  nextPuzzle();
+}
+
+function copyShare() {
+  navigator.clipboard.writeText(state._shareMsg || '').then(() => {
+    const btn = document.querySelector('#victory-overlay .btn');
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copié !';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  });
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────
+function nextPuzzle() {
+  const puzzles = REGIONS[state.region].puzzles;
+  state.puzzleIndex = (state.puzzleIndex + 1) % puzzles.length;
+  loadPuzzle();
+}
+
+function resetPuzzle() {
+  loadPuzzle();
+}
+
+function showHint() {
+  const puzzle = REGIONS[state.region].puzzles[state.puzzleIndex];
+  const n = puzzle.taille;
+  // Révéler une cellule aléatoire non remplie
+  const empty = [];
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+    if (puzzle.solution[r][c] && state.grille[r][c] !== 1) empty.push([r, c]);
+  }
+  if (!empty.length) return;
+  const [r, c] = empty[Math.floor(Math.random() * empty.length)];
+  state.grille[r][c] = 1;
+  state.erreurs++;
+  document.getElementById('stat-errors').textContent = state.erreurs;
+  renderCell(r, c, puzzle.solution);
+  updateProgress(puzzle.solution, n);
+  checkVictory(puzzle.solution);
+}
+
+// ─── MODE ──────────────────────────────────────────────────────────────
+function setMode(m) {
+  state.mode = m;
+  document.getElementById('mode-fill').className = 'mode-btn' + (m === 'fill' ? ' active' : '');
+  document.getElementById('mode-mark').className = 'mode-btn' + (m === 'mark' ? ' active' : '');
+}
+
+// ─── NAVIGATION PUZZLES ───────────────────────────────────────────────────
+function renderPuzzleNav(puzzles) {
+  const nav = document.getElementById('puzzle-nav');
+  nav.innerHTML = '';
+  puzzles.forEach((p, i) => {
+    const d = document.createElement('div');
+    const solved = state.solvedPuzzles[p.id];
+    d.className = 'puzzle-dot' + (i === state.puzzleIndex ? ' active' : '') + (solved ? ' solved' : '');
+    d.textContent = solved ? '✓' : (i + 1);
+    d.title = p.titre;
+    d.onclick = () => { state.puzzleIndex = i; loadPuzzle(); };
+    nav.appendChild(d);
+  });
+}
+
+// ─── SCORE RÉGIONS ────────────────────────────────────────────────────────
+function updateRegionScore() {
+  const puzzles = REGIONS[state.region].puzzles;
+  const solved  = puzzles.filter(p => state.solvedPuzzles[p.id]).length;
+  const el = document.getElementById('region-score');
+  el.innerHTML =
+    `🍁 Québec : <strong>${countSolved('qc')}</strong> résolus &nbsp;|&nbsp; ` +
+    `🗼 France : <strong>${countSolved('fr')}</strong> résolus`;
+}
+
+function countSolved(regionId) {
+  return REGIONS[regionId].puzzles.filter(p => state.solvedPuzzles[p.id]).length;
+}
+
+// ─── GOOGLE ADSENSE ──────────────────────────────────────────────────────
+function renderAds() {
+  const slots = [
+    { id: 'ad-top',    slotKey: 'haut_de_page'  },
+    { id: 'ad-bottom', slotKey: 'bas_de_page'   },
+  ];
+
+  slots.forEach(({ id, slotKey }) => {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    wrap.innerHTML = '';
+
+    if (ADSENSE_ACTIVE && ADSENSE_CLIENT !== 'ca-pub-XXXXXXXXXXXXXXXX') {
+      // Vrai bloc AdSense
+      const ins = document.createElement('ins');
+      ins.className            = 'adsbygoogle';
+      ins.style.display        = 'block';
+      ins.dataset.adClient     = ADSENSE_CLIENT;
+      ins.dataset.adSlot       = ADSENSE_SLOTS[slotKey];
+      ins.dataset.adFormat     = 'auto';
+      ins.dataset.fullWidthResponsive = 'true';
+      wrap.appendChild(ins);
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+    } else {
+      // Placeholder de développement
+      const ph = document.createElement('div');
+      ph.className   = 'ad-placeholder';
+      ph.textContent = `Espace pub — ${slotKey.replace('_', ' ')} (AdSense inactif)`;
+      wrap.appendChild(ph);
+    }
+  });
+}
+
+// Pub entre puzzles (affichée à chaque 3e puzzle complété)
+let puzzlesCompletedCount = 0;
+function maybeShowInterstitialAd() {
+  puzzlesCompletedCount++;
+  if (!ADSENSE_ACTIVE || puzzlesCompletedCount % 3 !== 0) return;
+  if (ADSENSE_CLIENT === 'ca-pub-XXXXXXXXXXXXXXXX') return;
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:200;background:#0e0e14ee;
+    display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:16px;
+  `;
+  const label = document.createElement('p');
+  label.style.cssText = 'color:var(--text-dim);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase';
+  label.textContent = 'Message du commanditaire';
+
+  const ins = document.createElement('ins');
+  ins.className = 'adsbygoogle';
+  ins.style.cssText = 'display:block;width:300px;height:250px';
+  ins.dataset.adClient = ADSENSE_CLIENT;
+  ins.dataset.adSlot   = ADSENSE_SLOTS.entre_puzzles;
+
+  const btn = document.createElement('button');
+  btn.className   = 'btn';
+  btn.textContent = '✕ Fermer et continuer';
+  btn.onclick     = () => document.body.removeChild(overlay);
+
+  overlay.appendChild(label);
+  overlay.appendChild(ins);
+  overlay.appendChild(btn);
+  document.body.appendChild(overlay);
+  try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+}
+
+// ─── MODALS FOOTER ───────────────────────────────────────────────────────
+function showAbout() {
+  document.getElementById('modal-about').style.display = 'flex';
+}
+function showPrivacy() {
+  document.getElementById('modal-privacy').style.display = 'flex';
+}
+
+// ─── DÉMARRAGE ────────────────────────────────────────────────────────────
+// Si région déjà choisie, sauter l'écran de sélection
+window.addEventListener('DOMContentLoaded', () => {
+  renderAds();
+  const saved = localStorage.getItem('pm_region');
+  if (saved && REGIONS[saved]?.actif) {
+    state.region = saved;
+    document.getElementById('screen-select').style.display = 'none';
+    initGame();
+  }
+  // sinon l'écran de sélection reste visible
+});
+</script>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer>
+  <div class="footer-brand">
+    <span>⬛</span> SagWeb Studio
+  </div>
+  <div class="footer-links">
+    <a class="footer-link" href="/cdn-cgi/l/email-protection#4e3d2f29392b2c3d3a3b2a27210e29232f2722602d2123">Contact</a>
+    <a class="footer-link" href="#" onclick="showAbout(); return false;">À propos</a>
+    <a class="footer-link" href="#" onclick="showPrivacy(); return false;">Confidentialité</a>
+  </div>
+  <div class="footer-copy">
+    © 2025 SagWeb Studio · Pixels-Mystère · Tous droits réservés
+  </div>
+</footer>
+
+<!-- Modal À propos -->
+<div id="modal-about" style="display:none;position:fixed;inset:0;z-index:200;background:#0e0e14cc;backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:36px;max-width:420px;width:90vw;display:flex;flex-direction:column;gap:16px;">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;">⬛ SagWeb Studio</div>
+    <p style="font-size:0.8rem;color:var(--text-dim);line-height:1.7;">
+      SagWeb Studio est un studio indépendant québécois qui crée des jeux web et des outils numériques accessibles, entièrement gratuits.<br><br>
+      <strong style="color:var(--text);">Pixels-Mystère</strong> est notre premier jeu — un nonogram francophone mettant en valeur la culture québécoise et française.
+    </p>
+    <p style="font-size:0.75rem;color:var(--text-dim);">
+      📧 <a href="/cdn-cgi/l/email-protection#7003111707151203040514191f30171d11191c5e131f1d" style="color:var(--accent-active);text-decoration:none;"><span class="__cf_email__" data-cfemail="80f3e1e7f7e5e2f3f4f5e4e9efc0e7ede1e9ecaee3efed">[email&#160;protected]</span></a>
+    </p>
+    <button class="btn" onclick="document.getElementById('modal-about').style.display='none'">Fermer</button>
+  </div>
+</div>
+
+<!-- Modal Confidentialité (requis par AdSense) -->
+<div id="modal-privacy" style="display:none;position:fixed;inset:0;z-index:200;background:#0e0e14cc;backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:36px;max-width:480px;width:90vw;display:flex;flex-direction:column;gap:14px;max-height:80vh;overflow-y:auto;">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;">🔒 Politique de confidentialité</div>
+    <p style="font-size:0.75rem;color:var(--text-dim);line-height:1.8;">
+      <strong style="color:var(--text);">SagWeb Studio</strong> respecte ta vie privée.<br><br>
+      <strong style="color:var(--text);">Données collectées :</strong><br>
+      Ce site utilise <em>localStorage</em> pour sauvegarder ta progression localement dans ton navigateur. Aucune donnée personnelle n'est transmise à nos serveurs.<br><br>
+      <strong style="color:var(--text);">Publicités :</strong><br>
+      Ce site utilise Google AdSense pour afficher des publicités. Google peut utiliser des cookies pour personnaliser les annonces selon tes intérêts. Tu peux consulter la politique de confidentialité de Google à l'adresse <em>policies.google.com</em>.<br><br>
+      <strong style="color:var(--text);">Contact :</strong><br>
+      Pour toute question : <a href="/cdn-cgi/l/email-protection#95e6f4f2e2f0f7e6e1e0f1fcfad5f2f8f4fcf9bbf6faf8" style="

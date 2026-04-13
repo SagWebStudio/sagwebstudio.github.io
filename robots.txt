@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sagwebstudio.github.io/pixels-mystere/sitemap.xml
